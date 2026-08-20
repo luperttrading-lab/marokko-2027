@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Marokko">
+<meta name="theme-color" content="#0B1430">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
 <meta name="color-scheme" content="dark">
 <title>Marokko · Eine Weinreise für die Sinne</title>
 <style>
@@ -73,12 +80,13 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .belowimg img{width:100%;display:block}
 .belowimg.portrait img{max-height:430px;object-fit:contain;margin:0 auto}
 .hero-img img,.simg img{width:100%;height:100%;object-fit:cover;display:block}
-.maplegend{display:flex;gap:18px;justify-content:center;align-items:center;padding:12px 0 2px;
+.maplegend{position:relative;z-index:1;display:flex;gap:18px;justify-content:center;align-items:center;padding:12px 0 2px;
   font-size:11.5px;color:var(--ivory-dim);height:32px}
 .lg{display:flex;align-items:center;gap:6px}
-.dotnum{width:16px;height:16px;border-radius:50%;background:var(--saffron);color:#20222B;
-  font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.dotwine{width:9px;height:9px;transform:rotate(45deg);background:var(--wine-bright);border-radius:2px}
+.dotnum{width:22px;height:22px;border-radius:50%;background:var(--saffron);color:#1A1305;
+  border:1.6px solid #4A3410;box-sizing:border-box;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.dotwine{width:12px;height:12px;transform:rotate(45deg);background:var(--wine-bright);border-radius:2px}
 .maphint{text-align:center;font-size:10px;color:rgba(201,194,172,.55);padding:2px 0 0;height:16px;letter-spacing:.02em}
 
 .layerseg{display:flex;justify-content:center;gap:0;margin:0 auto 12px;width:240px;
@@ -107,10 +115,12 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 @keyframes caravan{to{stroke-dashoffset:-200}}
 .citydot{fill:#6B5A33}
 .cityname{font-size:12px;fill:#4A3B1D;font-weight:600}
-.winept{fill:var(--wine-bright);stroke:#5E1725;stroke-width:1}
+.wineb{fill:#16265A}
+.winept{fill:#D2536A;stroke:none}
 .winename{font-size:10.5px;fill:#6E2231;font-weight:600}
-.stop circle.big{fill:var(--saffron);stroke:#8A6420;stroke-width:1.5}
-.stop text{font-size:13px;font-weight:700;fill:#20222B}
+.stop circle.base{fill:#16265A}
+.stop circle.big{fill:#E3AC46;stroke:none}
+.stop text{font-size:13px;font-weight:700;fill:#1A1305}
 .stop .halo{fill:none;stroke:var(--saffron);stroke-width:2;opacity:0}
 .stop.active .halo{opacity:1;animation:pulse 1.6s ease-out infinite}
 @keyframes pulse{0%{r:11;opacity:.9}100%{r:22;opacity:0}}
@@ -426,7 +436,7 @@ footer a{color:var(--sand)}
 <footer>
   Aromalabor Südpfalz · Dr. Susanne Geipert<br>
   <a href="https://www.aromalabor-suedpfalz.de">www.aromalabor-suedpfalz.de</a><br>
-  Marokko-Weinreise · App v1.1
+  Marokko-Weinreise · App v1.9
 </footer>
 </div>
 
@@ -471,6 +481,12 @@ var wines=[
 ];
 var NS='http://www.w3.org/2000/svg', gw=document.getElementById('wines');
 wines.forEach(function(w){
+  var rb=document.createElementNS(NS,'rect');
+  rb.setAttribute('x',w.x-6.6);rb.setAttribute('y',w.y-6.6);
+  rb.setAttribute('width',13.2);rb.setAttribute('height',13.2);
+  rb.setAttribute('rx',2);
+  rb.setAttribute('transform','rotate(45 '+w.x+' '+w.y+')');
+  rb.setAttribute('class','wineb'); gw.appendChild(rb);
   var r=document.createElementNS(NS,'rect');
   r.setAttribute('x',w.x-5);r.setAttribute('y',w.y-5);
   r.setAttribute('width',10);r.setAttribute('height',10);
@@ -498,6 +514,8 @@ stops.forEach(function(s){
   g.style.cursor='pointer';
   var halo=document.createElementNS(NS,'circle');
   halo.setAttribute('class','halo');halo.setAttribute('cx',s.x);halo.setAttribute('cy',s.y);halo.setAttribute('r',11);
+  var bs=document.createElementNS(NS,'circle');
+  bs.setAttribute('class','base');bs.setAttribute('cx',s.x);bs.setAttribute('cy',s.y);bs.setAttribute('r',14.8);
   var c=document.createElementNS(NS,'circle');
   c.setAttribute('class','big');c.setAttribute('cx',s.x);c.setAttribute('cy',s.y);c.setAttribute('r',13);
   var t=document.createElementNS(NS,'text');
@@ -507,7 +525,7 @@ stops.forEach(function(s){
   nm.setAttribute('x',s.x+s.lx);nm.setAttribute('y',s.y+s.ly);
   nm.setAttribute('class','cityname'); if(s.anchor)nm.setAttribute('text-anchor',s.anchor);
   nm.textContent=s.name;
-  g.appendChild(halo);g.appendChild(c);g.appendChild(t);g.appendChild(nm);
+  g.appendChild(halo);g.appendChild(bs);g.appendChild(c);g.appendChild(t);g.appendChild(nm);
   g.addEventListener('click',function(){
     if(window.__mapPanned) return;
     var el=document.getElementById('s'+s.n);
