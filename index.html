@@ -54,13 +54,16 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .mapframe{position:relative;background:var(--card);border:1px solid var(--line);
   border-radius:16px;padding:10px;box-shadow:0 0 22px rgba(217,164,65,.14), 0 12px 26px rgba(0,0,0,.5)}
 
-.mapclip{overflow:hidden;border-radius:10px;touch-action:pan-y;aspect-ratio:720/726}
+.mapclip{position:relative;overflow:hidden;border-radius:10px;touch-action:pan-y;aspect-ratio:720/726}
+.mapclip::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:10px;
+  box-shadow:inset 0 0 26px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.14)}
 .mapclip.zoomed{touch-action:none}
 .mapclip svg{display:block;width:100%;height:100%}
 .corner{position:absolute;width:16px;height:16px;z-index:2;pointer-events:none}
-.zoomctl{display:flex;justify-content:center;gap:10px;padding:12px 0 0}
-.zoomctl button{width:72px;height:42px;border-radius:10px;border:1px solid var(--line);
-  background:rgba(13,24,56,.82);color:var(--saffron);font-size:20px;font-weight:600;line-height:1}
+.zoomctl{position:absolute;right:18px;bottom:18px;z-index:3;display:flex;flex-direction:row;gap:8px}
+.zoomctl button{width:38px;height:38px;border-radius:9px;border:1px solid var(--lineimg);
+  background:rgba(11,20,48,.80);color:var(--saffron);font-size:19px;font-weight:600;line-height:1;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .zoomctl button:active{background:rgba(217,164,65,.28)}
 .stripimg{width:100%;aspect-ratio:980/380;background:var(--imgbg)}
 .stripimg img{width:100%;height:100%;object-fit:cover;display:block}
@@ -70,13 +73,13 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .belowimg img{width:100%;display:block}
 .belowimg.portrait img{max-height:430px;object-fit:contain;margin:0 auto}
 .hero-img img,.simg img{width:100%;height:100%;object-fit:cover;display:block}
-.maplegend{display:flex;gap:16px;justify-content:center;align-items:center;padding:10px 0 2px;
-  font-size:11.5px;color:var(--ivory-dim);height:34px}
+.maplegend{display:flex;gap:18px;justify-content:center;align-items:center;padding:12px 0 2px;
+  font-size:11.5px;color:var(--ivory-dim);height:32px}
 .lg{display:flex;align-items:center;gap:6px}
 .dotnum{width:16px;height:16px;border-radius:50%;background:var(--saffron);color:#20222B;
   font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .dotwine{width:9px;height:9px;transform:rotate(45deg);background:var(--wine-bright);border-radius:2px}
-.maphint{text-align:center;font-size:12px;color:var(--ivory-dim);padding:4px 0 0;height:20px}
+.maphint{text-align:center;font-size:10px;color:rgba(201,194,172,.55);padding:2px 0 0;height:16px;letter-spacing:.02em}
 
 .layerseg{display:flex;justify-content:center;gap:0;margin:0 auto 12px;width:240px;
   border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -89,14 +92,11 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 #map.sat .cityname{fill:#fff;stroke:rgba(0,0,0,.85);stroke-width:2.6px;paint-order:stroke}
 #map.terr .cityname{fill:#1B2430;stroke:rgba(255,255,255,.92);stroke-width:2.8px;paint-order:stroke}
 #map.terr .winename{fill:#7A1F30;stroke:rgba(255,255,255,.92);stroke-width:2.8px;paint-order:stroke}
-#map.terr .scalebar line{stroke:#1B2430}
-#map.terr .scalebar text{fill:#1B2430;stroke:rgba(255,255,255,.9);stroke-width:2.4px;paint-order:stroke}
 #map.terr .compass path{fill:#1B2430}
 #map.terr .compass text{fill:#1B2430;stroke:rgba(255,255,255,.9);stroke-width:2.4px;paint-order:stroke}
 #map.sat .winename{fill:#FFD9E0;stroke:rgba(0,0,0,.85);stroke-width:2.6px;paint-order:stroke}
 #map.sat .route{stroke:#FF6B81}
 #map.sat .citydot{fill:#fff}
-#map.sat .scalebar line{stroke:#fff}#map.sat .scalebar text{fill:#fff;stroke:rgba(0,0,0,.8);stroke-width:2.4px;paint-order:stroke}
 #map.sat .compass path{fill:#fff}#map.sat .compass text{fill:#fff;stroke:rgba(0,0,0,.8);stroke-width:2.4px;paint-order:stroke}
 /* SVG-Stile */
 .land{fill:var(--sand);stroke:#B79F6B;stroke-width:1.2}
@@ -114,8 +114,9 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .stop .halo{fill:none;stroke:var(--saffron);stroke-width:2;opacity:0}
 .stop.active .halo{opacity:1;animation:pulse 1.6s ease-out infinite}
 @keyframes pulse{0%{r:11;opacity:.9}100%{r:22;opacity:0}}
-.scalebar line{stroke:#4A3B1D;stroke-width:2}
-.scalebar text{font-size:10px;fill:#4A3B1D}
+.scalebar line{stroke:#1B2430;stroke-width:2}
+.scalebar text{font-size:10px;fill:#1B2430;font-weight:600}
+.sbbg{fill:rgba(255,255,255,.80);stroke:rgba(0,0,0,.22);stroke-width:1}
 .compass text{font-size:11px;fill:rgba(245,238,221,.85);font-weight:700}
 .compass path{fill:rgba(245,238,221,.85)}
 
@@ -276,9 +277,10 @@ footer a{color:var(--sand)}
     <!-- Etappen -->
     <g id="stops"></g>
     <!-- Maßstab -->
-    <g class="scalebar" transform="translate(575,712)">
+    <g class="scalebar" transform="translate(70,712)">
+      <rect class="sbbg" x="-10" y="-26" width="139" height="38" rx="8"/>
       <line x1="0" y1="0" x2="118.6" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><line x1="118.6" y1="-5" x2="118.6" y2="5"/>
-      <text x="38" y="-8">100 km</text>
+      <text x="38" y="-9">100 km</text>
     </g>
     <!-- Kompass -->
     <g class="compass" transform="translate(88,160)">
@@ -287,17 +289,16 @@ footer a{color:var(--sand)}
     </g>
   </svg>
   </div>
-  </div>
   <div class="zoomctl">
     <button id="zin" aria-label="Vergrößern">+</button>
     <button id="zout" aria-label="Verkleinern">−</button>
-    <button id="zreset" aria-label="Zurücksetzen" style="font-size:15px">⟲</button>
+  </div>
   </div>
   <div class="maplegend">
-    <span class="lg"><span class="dotnum">1</span> Etappe (antippen)</span>
+    <span class="lg"><span class="dotnum">1</span> Etappe</span>
     <span class="lg"><span class="dotwine"></span> Weingut</span>
   </div>
-  <div class="maphint" style="height:34px;line-height:1.4">Zoomen: zwei Finger oder +/− · Rauszoomen zeigt Nordmarokko<br>Weingut-Positionen nach Betreiberangaben</div>
+  <div class="maphint">Kartenbilder © Esri</div>
 </section>
 
 <section class="stages">
@@ -425,7 +426,7 @@ footer a{color:var(--sand)}
 <footer>
   Aromalabor Südpfalz · Dr. Susanne Geipert<br>
   <a href="https://www.aromalabor-suedpfalz.de">www.aromalabor-suedpfalz.de</a><br>
-  Marokko-Weinreise · App v0.7
+  Marokko-Weinreise · App v1.1
 </footer>
 </div>
 
@@ -549,7 +550,7 @@ stops.forEach(function(s){
   }
   document.getElementById('zin').addEventListener('click',function(){centerZoom(1.5);});
   document.getElementById('zout').addEventListener('click',function(){centerZoom(1/1.5);});
-  document.getElementById('zreset').addEventListener('click',function(){S=SDEF;TX=TXDEF;TY=TYDEF;apply();});
+  // Zuruecksetzen per Doppeltipp (kein eigener Button)
 
   // Doppeltipp
   var lastTap=0,lastXY=[0,0];
@@ -630,7 +631,7 @@ var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x":
   var bT=document.getElementById('lyTerr'), bS=document.getElementById('lySat');
   var fails=0, oks=0;
   var hint=document.querySelector('.maphint');
-  var SRC={sat:'World_Imagery', terr:'World_Terrain_Base'};
+  var SRC={sat:'World_Imagery', terr:'World_Physical_Map'};
   var built={};
   function loadTiles(kind){
     if(built[kind]) return; built[kind]=true;
@@ -649,13 +650,13 @@ var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x":
   }
   function check(){
     if(oks===0 && fails>=TILES.length*0.5){
-      hint.textContent='Kartenbilder brauchen Internet – in der Vorschau nicht verfügbar, auf GitHub Pages schon. Angezeigt wird die gezeichnete Ersatzkarte.';
+      hint.textContent='Ersatzkarte – Kartenbilder benötigen Internet';
     }
   }
   var mode='terr';
   var HINTS={
-    terr:'Gelände: © Esri · USGS · NOAA · Zoomen: zwei Finger oder +/−<br>Weingut-Positionen nach Betreiberangaben',
-    sat:'Satellit: © Esri · Maxar · Earthstar Geographics<br>Zoomen: zwei Finger oder +/− · Doppeltipp = Standard'
+    terr:'Physische Karte © Esri · U.S. National Park Service',
+    sat:'Satellit © Esri · Maxar · Earthstar Geographics'
   };
   function setMode(m){
     mode=m;
