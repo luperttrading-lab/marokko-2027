@@ -11,7 +11,7 @@
   --sea:#1C336F; --sea-deep:#12224E; --night:#0D1838;
   --sand:#E9D8AC; --sand-dim:#D8C594; --ivory:#F5EEDD; --ivory-dim:#C9C2AC;
   --wine:#8E2A3C; --wine-bright:#C4485C; --saffron:#D9A441;
-  --card:#16265A; --line:rgba(233,216,172,.18);
+  --card:#16265A; --line:rgba(217,164,65,.42); --lineimg:rgba(217,164,65,.62); --imgbg:#16265A;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
@@ -30,7 +30,7 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .sub{font-family:Georgia,serif;font-style:italic;font-size:19px;color:var(--sand);margin-bottom:14px}
 .trias{font-size:12px;letter-spacing:.3em;color:var(--ivory-dim);margin-bottom:22px}
 .hero-img{width:100%;aspect-ratio:973/515;border-radius:14px;overflow:hidden;
-  border:1px solid var(--line);background:linear-gradient(135deg,#1C336F,#8E2A3C)}
+  border:1px solid var(--lineimg);background:var(--imgbg)}
 .hero-img img{width:100%;height:100%;object-fit:cover;display:block}
 .hero-meta{margin-top:16px;font-size:14px;line-height:1.55;color:var(--ivory-dim)}
 .hero-meta b{color:var(--ivory);font-weight:600}
@@ -51,22 +51,22 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .mapsec{padding:36px 0 8px}
 .mapsec .eyebrow{display:block;text-align:center;margin-bottom:8px}
 .mapsec h2{font-family:Georgia,serif;text-align:center;font-size:26px;font-weight:400;margin-bottom:16px}
-.mapframe{position:relative;background:linear-gradient(180deg,#20397C,#16295E);border:1px solid rgba(217,164,65,.55);
-  border-radius:16px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
-.mapframe::after{content:'';position:absolute;inset:4px;border:1px solid rgba(217,164,65,.28);border-radius:12px;pointer-events:none}
+.mapframe{position:relative;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:10px;box-shadow:0 0 22px rgba(217,164,65,.14), 0 12px 26px rgba(0,0,0,.5)}
+
 .mapclip{overflow:hidden;border-radius:10px;touch-action:pan-y;aspect-ratio:720/726}
 .mapclip.zoomed{touch-action:none}
 .mapclip svg{display:block;width:100%;height:100%}
 .corner{position:absolute;width:16px;height:16px;z-index:2;pointer-events:none}
 .zoomctl{display:flex;justify-content:center;gap:10px;padding:12px 0 0}
-.zoomctl button{width:72px;height:42px;border-radius:10px;border:1px solid rgba(217,164,65,.7);
+.zoomctl button{width:72px;height:42px;border-radius:10px;border:1px solid var(--line);
   background:rgba(13,24,56,.82);color:var(--saffron);font-size:20px;font-weight:600;line-height:1}
 .zoomctl button:active{background:rgba(217,164,65,.28)}
-.stripimg{width:100%;aspect-ratio:980/380;background:linear-gradient(90deg,#1C336F,#8E2A3C)}
+.stripimg{width:100%;aspect-ratio:980/380;background:var(--imgbg)}
 .stripimg img{width:100%;height:100%;object-fit:cover;display:block}
 /* Bild unter dem Etappentext: gleiche Rahmung fuer alle Etappen */
-.belowimg{margin:8px 0 14px;border-radius:10px;overflow:hidden;background:#101D45;
-  border:1px solid var(--line)}
+.belowimg{margin:8px 0 14px;border-radius:10px;overflow:hidden;background:var(--imgbg);
+  border:1px solid var(--lineimg)}
 .belowimg img{width:100%;display:block}
 .belowimg.portrait img{max-height:430px;object-fit:contain;margin:0 auto}
 .hero-img img,.simg img{width:100%;height:100%;object-fit:cover;display:block}
@@ -78,13 +78,21 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .dotwine{width:9px;height:9px;transform:rotate(45deg);background:var(--wine-bright);border-radius:2px}
 .maphint{text-align:center;font-size:12px;color:var(--ivory-dim);padding:4px 0 0;height:20px}
 
-.layerseg{display:flex;justify-content:center;gap:0;margin:0 auto 12px;width:220px;
-  border:1px solid rgba(217,164,65,.6);border-radius:10px;overflow:hidden}
-.layerseg button{flex:1;height:38px;border:none;background:transparent;color:var(--saffron);font-size:13.5px;font-weight:600}
+.layerseg{display:flex;justify-content:center;gap:0;margin:0 auto 12px;width:240px;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.layerseg button{flex:1;height:38px;border:none;border-right:1px solid var(--line);background:transparent;color:var(--saffron);font-size:13.5px;font-weight:600}
+.layerseg button:last-child{border-right:none}
 .layerseg button.on{background:var(--saffron);color:#20222B}
-#map.sat .land{fill:none;stroke:rgba(255,255,255,.0)}
+#map.sat .sea-label,#map.sat .land-label,#map.terr .sea-label,#map.terr .land-label{display:none}
+#map.sat .coastglow,#map.terr .coastglow{display:none}
 #map.sat .coastglow,#map.sat .sea-label,#map.sat .land-label{display:none}
 #map.sat .cityname{fill:#fff;stroke:rgba(0,0,0,.85);stroke-width:2.6px;paint-order:stroke}
+#map.terr .cityname{fill:#1B2430;stroke:rgba(255,255,255,.92);stroke-width:2.8px;paint-order:stroke}
+#map.terr .winename{fill:#7A1F30;stroke:rgba(255,255,255,.92);stroke-width:2.8px;paint-order:stroke}
+#map.terr .scalebar line{stroke:#1B2430}
+#map.terr .scalebar text{fill:#1B2430;stroke:rgba(255,255,255,.9);stroke-width:2.4px;paint-order:stroke}
+#map.terr .compass path{fill:#1B2430}
+#map.terr .compass text{fill:#1B2430;stroke:rgba(255,255,255,.9);stroke-width:2.4px;paint-order:stroke}
 #map.sat .winename{fill:#FFD9E0;stroke:rgba(0,0,0,.85);stroke-width:2.6px;paint-order:stroke}
 #map.sat .route{stroke:#FF6B81}
 #map.sat .citydot{fill:#fff}
@@ -118,7 +126,7 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .stages .lead{text-align:center;font-size:14px;color:var(--ivory-dim);line-height:1.55;margin-bottom:24px}
 .stage{background:var(--card);border:1px solid var(--line);border-radius:16px;
   overflow:hidden;margin-bottom:22px;scroll-margin-top:14px}
-.simg{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#1C336F,#8E2A3C);position:relative}
+.simg{width:100%;aspect-ratio:16/10;background:var(--imgbg);position:relative}
 .simg img{width:100%;height:100%;object-fit:cover;display:block}
 .simg .ph{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
 .simg.noimg img{display:none}.simg.noimg .ph{display:flex}
@@ -129,14 +137,14 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .snum .where{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--saffron)}
 .stage h3{font-family:Georgia,serif;font-size:21px;font-weight:400;line-height:1.25;margin-bottom:10px;color:var(--sand)}
 .stage p{font-size:14.5px;line-height:1.62;color:var(--ivory);margin-bottom:10px}
-.infobtn{margin-top:6px;width:100%;height:44px;border-radius:10px;border:1px solid var(--saffron);
+.infobtn{margin-top:6px;width:100%;height:44px;border-radius:10px;border:1px solid var(--line);
   background:transparent;color:var(--saffron);font-size:14px;font-weight:600;letter-spacing:.04em}
 .infobtn:active{background:rgba(217,164,65,.15)}
 
 /* ---------- Begleitung ---------- */
 .guide{padding:34px 0 0}
 .gcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.gimg{width:100%;aspect-ratio:4/5;background:#1C336F}
+.gimg{width:100%;aspect-ratio:4/5;background:var(--imgbg)}
 .gimg img{width:100%;height:100%;object-fit:cover;object-position:50% 0%;display:block}
 .gbody{padding:18px 16px}
 .gbody h2{font-family:Georgia,serif;font-size:21px;font-weight:400;line-height:1.3;color:var(--sand);margin:6px 0 10px}
@@ -153,8 +161,8 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 .inc li b{color:var(--sand)}
 
 /* ---------- Preis ---------- */
-.price{margin:38px 0 0;background:linear-gradient(160deg,#22397E,#16265A);
-  border:1px solid rgba(217,164,65,.45);border-radius:16px;padding:26px 18px;text-align:center}
+.price{margin:38px 0 0;background:var(--card);
+  border:1px solid var(--line);border-radius:16px;padding:26px 18px;text-align:center}
 .price .eyebrow{display:block;margin-bottom:10px}
 .price .big{font-family:Georgia,serif;font-size:40px;color:var(--saffron)}
 .price .per{font-size:13px;color:var(--ivory-dim);margin:6px 0 14px;line-height:1.5}
@@ -190,6 +198,14 @@ footer a{color:var(--sand)}
 #sheet .close{margin-top:14px;width:100%;height:44px;border-radius:10px;border:none;
   background:var(--saffron);color:#20222B;font-size:14px;font-weight:700}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.stop.active .halo{animation:none;opacity:.8}.route{animation:none}}
+
+  /* Rahmen-Finish: heller Grund, 1px Gold, weicher Schein */
+  body{background:#0B1430}
+  #bgfix{background:linear-gradient(180deg,#0B1430 0%,#101D45 55%,#0B1430 100%)}
+  .stage{background:var(--card);margin-bottom:30px;border:1px solid rgba(217,164,65,.42);
+    box-shadow:0 0 20px rgba(217,164,65,.16), 0 10px 24px rgba(0,0,0,.42)}
+  .gcard{border:1px solid rgba(217,164,65,.42);
+    box-shadow:0 0 20px rgba(217,164,65,.16), 0 10px 24px rgba(0,0,0,.42)}
 </style>
 </head>
 <body>
@@ -227,7 +243,7 @@ footer a{color:var(--sand)}
   <span class="eyebrow">Die Route</span>
   <h2>Von Marrakesch bis zum Atlantik</h2>
   <div class="layerseg" role="tablist">
-    <button id="lyKarte" class="on" role="tab">Karte</button><button id="lySat" role="tab">Satellit</button>
+    <button id="lyTerr" class="on" role="tab">Gelände</button><button id="lySat" role="tab">Satellit</button>
   </div>
   <div class="mapframe">
   <svg class="corner" style="left:8px;top:8px" viewBox="0 0 40 40"><path d="M20 4 L23.6 16.4 L36 20 L23.6 23.6 L20 36 L16.4 23.6 L4 20 L16.4 16.4 Z" fill="#D9A441" opacity=".85"/></svg>
@@ -247,9 +263,9 @@ footer a{color:var(--sand)}
     <g id="zoomg">
     <rect x="0" y="0" width="720" height="865.7" fill="url(#seag)"/>
     <rect x="0" y="0" width="720" height="865.7" fill="url(#seaglow)"/>
-    <g id="satlayer" style="display:none"></g>
     <path class="coastglow" d="M94.2,863.7 L108.5,848.0 L119.9,827.9 L126.8,811.2 L127.9,806.4 L129.8,790.1 L131.8,781.6 L132.1,779.0 L131.6,775.6 L130.4,773.9 L128.7,772.7 L126.8,770.7 L125.6,768.5 L122.8,762.1 L121.8,757.8 L120.9,757.2 L119.7,757.1 L118.4,756.6 L117.4,755.6 L115.4,752.1 L107.5,746.8 L105.1,746.6 L102.6,746.1 L101.0,744.2 L101.2,739.3 L103.5,734.4 L106.4,729.9 L108.5,725.7 L109.3,722.8 L109.3,721.2 L108.9,719.9 L108.1,718.8 L108.1,718.0 L108.3,717.0 L108.5,715.5 L107.7,690.1 L107.3,687.8 L105.5,683.2 L106.9,680.1 L109.8,661.8 L110.0,654.4 L109.6,651.4 L108.4,649.7 L106.9,648.5 L105.5,646.7 L109.0,642.3 L111.5,637.8 L114.1,630.0 L115.4,628.1 L117.5,626.3 L118.2,625.3 L118.8,623.0 L120.3,621.4 L121.0,619.9 L122.5,617.7 L123.0,616.5 L124.6,606.1 L125.5,604.0 L135.6,592.9 L140.1,586.6 L140.9,585.7 L142.5,584.5 L143.5,583.5 L144.3,582.2 L145.3,580.0 L145.8,579.1 L158.8,565.5 L160.2,562.8 L161.0,560.9 L162.3,555.7 L162.5,553.5 L163.0,551.9 L167.0,546.9 L168.6,543.2 L169.5,539.2 L170.1,525.7 L169.6,525.0 L167.5,524.0 L167.0,523.0 L167.3,520.2 L168.0,518.2 L171.0,512.3 L171.8,509.7 L172.0,507.1 L171.2,505.0 L170.2,503.7 L169.2,501.8 L168.6,499.6 L168.5,497.4 L170.6,493.3 L187.0,479.4 L199.5,464.4 L210.3,456.8 L214.0,453.2 L226.6,436.2 L240.5,420.7 L241.3,419.2 L241.4,417.5 L241.4,414.7 L242.4,413.0 L251.5,402.1 L252.4,401.5 L253.4,401.8 L254.5,403.0 L255.4,403.3 L258.1,403.1 L260.1,402.6 L264.2,400.6 L268.2,397.3 L274.7,389.2 L278.6,386.0 L283.2,384.0 L298.4,380.6 L308.9,375.8 L314.3,373.4 L319.4,372.1 L322.2,370.9 L324.6,367.8 L327.3,366.6 L334.7,364.3 L339.2,362.0 L341.2,361.5 L343.3,360.4 L345.1,358.1 L347.0,356.4 L349.2,357.0 L350.4,356.1 L351.5,356.3 L352.5,356.8 L353.8,357.0 L354.8,356.5 L356.8,355.3 L360.0,354.7 L362.3,353.7 L364.4,352.6 L365.9,351.4 L369.6,346.6 L372.8,345.0 L375.9,341.2 L378.0,340.4 L377.3,341.4 L379.5,342.2 L381.9,341.5 L383.1,340.6 L391.3,335.1 L395.5,331.3 L399.6,329.1 L404.0,327.4 L408.0,326.8 L408.0,326.8 L409.9,326.1 L413.4,323.0 L417.4,321.5 L429.0,312.2 L440.6,299.5 L450.4,283.0 L457.7,267.2 L469.9,248.8 L471.0,246.5 L472.9,241.2 L475.4,237.1 L499.3,186.5 L508.9,153.5 L529.0,102.4 L529.6,99.8 L529.8,96.5 L530.3,94.5 L532.7,89.1 L535.0,81.8 L535.2,80.6 L535.5,79.3 L537.0,77.3 L537.3,75.9 L538.0,69.5 L538.8,66.3 L539.8,64.3 L541.9,62.0 L545.7,61.4 L555.9,62.9 L557.2,62.6 L560.2,59.6 L561.6,58.5 L563.6,57.4 L565.6,56.9 L567.0,57.6 L569.0,56.7 L571.6,56.7 L574.2,57.3 L576.1,58.6 L582.6,54.7 L584.5,53.0 L588.5,48.4 L590.5,46.6 L592.8,45.4 L593.7,45.5 L594.2,46.0 L595.6,46.7 L596.6,46.7 L597.0,45.6 L597.3,44.6 L597.5,44.3 L598.2,44.6 L598.3,44.6 L599.3,47.7 L600.5,50.5 L602.3,52.9 L604.7,55.2 L604.7,55.2 L604.2,57.2 L604.5,60.6 L606.2,67.7 L606.7,73.4 L607.2,75.0 L607.8,76.3 L608.7,77.3 L609.4,77.4 L611.2,77.1 L611.8,77.3 L612.0,78.1 L611.7,80.2 L611.8,81.0 L613.7,88.3 L614.8,91.0 L617.2,93.2 L621.8,96.6 L625.8,100.3 L635.1,113.8 L636.8,115.1 L639.5,115.6 L641.6,116.2 L643.7,117.8 L647.5,121.2 L650.6,125.6 L652.5,127.7 L657.4,129.4 L663.4,135.1 L667.9,137.7 L683.6,142.5 L698.4,145.9 L698.5,145.9 L711.6,149.8 L714.7,150.0 L717.0,149.4 L720.0,147.5 L720.0,757.5 L712.0,762.2 L699.6,778.4 L684.1,790.9 L667.9,798.1 L656.2,804.4 L647.0,811.5 L634.6,822.2 L623.0,830.3 L612.1,841.9 L604.4,857.1 L599.0,865.7 L92.7,865.7 L94.2,863.7 Z"/>
     <path class="land" d="M94.2,863.7 L108.5,848.0 L119.9,827.9 L126.8,811.2 L127.9,806.4 L129.8,790.1 L131.8,781.6 L132.1,779.0 L131.6,775.6 L130.4,773.9 L128.7,772.7 L126.8,770.7 L125.6,768.5 L122.8,762.1 L121.8,757.8 L120.9,757.2 L119.7,757.1 L118.4,756.6 L117.4,755.6 L115.4,752.1 L107.5,746.8 L105.1,746.6 L102.6,746.1 L101.0,744.2 L101.2,739.3 L103.5,734.4 L106.4,729.9 L108.5,725.7 L109.3,722.8 L109.3,721.2 L108.9,719.9 L108.1,718.8 L108.1,718.0 L108.3,717.0 L108.5,715.5 L107.7,690.1 L107.3,687.8 L105.5,683.2 L106.9,680.1 L109.8,661.8 L110.0,654.4 L109.6,651.4 L108.4,649.7 L106.9,648.5 L105.5,646.7 L109.0,642.3 L111.5,637.8 L114.1,630.0 L115.4,628.1 L117.5,626.3 L118.2,625.3 L118.8,623.0 L120.3,621.4 L121.0,619.9 L122.5,617.7 L123.0,616.5 L124.6,606.1 L125.5,604.0 L135.6,592.9 L140.1,586.6 L140.9,585.7 L142.5,584.5 L143.5,583.5 L144.3,582.2 L145.3,580.0 L145.8,579.1 L158.8,565.5 L160.2,562.8 L161.0,560.9 L162.3,555.7 L162.5,553.5 L163.0,551.9 L167.0,546.9 L168.6,543.2 L169.5,539.2 L170.1,525.7 L169.6,525.0 L167.5,524.0 L167.0,523.0 L167.3,520.2 L168.0,518.2 L171.0,512.3 L171.8,509.7 L172.0,507.1 L171.2,505.0 L170.2,503.7 L169.2,501.8 L168.6,499.6 L168.5,497.4 L170.6,493.3 L187.0,479.4 L199.5,464.4 L210.3,456.8 L214.0,453.2 L226.6,436.2 L240.5,420.7 L241.3,419.2 L241.4,417.5 L241.4,414.7 L242.4,413.0 L251.5,402.1 L252.4,401.5 L253.4,401.8 L254.5,403.0 L255.4,403.3 L258.1,403.1 L260.1,402.6 L264.2,400.6 L268.2,397.3 L274.7,389.2 L278.6,386.0 L283.2,384.0 L298.4,380.6 L308.9,375.8 L314.3,373.4 L319.4,372.1 L322.2,370.9 L324.6,367.8 L327.3,366.6 L334.7,364.3 L339.2,362.0 L341.2,361.5 L343.3,360.4 L345.1,358.1 L347.0,356.4 L349.2,357.0 L350.4,356.1 L351.5,356.3 L352.5,356.8 L353.8,357.0 L354.8,356.5 L356.8,355.3 L360.0,354.7 L362.3,353.7 L364.4,352.6 L365.9,351.4 L369.6,346.6 L372.8,345.0 L375.9,341.2 L378.0,340.4 L377.3,341.4 L379.5,342.2 L381.9,341.5 L383.1,340.6 L391.3,335.1 L395.5,331.3 L399.6,329.1 L404.0,327.4 L408.0,326.8 L408.0,326.8 L409.9,326.1 L413.4,323.0 L417.4,321.5 L429.0,312.2 L440.6,299.5 L450.4,283.0 L457.7,267.2 L469.9,248.8 L471.0,246.5 L472.9,241.2 L475.4,237.1 L499.3,186.5 L508.9,153.5 L529.0,102.4 L529.6,99.8 L529.8,96.5 L530.3,94.5 L532.7,89.1 L535.0,81.8 L535.2,80.6 L535.5,79.3 L537.0,77.3 L537.3,75.9 L538.0,69.5 L538.8,66.3 L539.8,64.3 L541.9,62.0 L545.7,61.4 L555.9,62.9 L557.2,62.6 L560.2,59.6 L561.6,58.5 L563.6,57.4 L565.6,56.9 L567.0,57.6 L569.0,56.7 L571.6,56.7 L574.2,57.3 L576.1,58.6 L582.6,54.7 L584.5,53.0 L588.5,48.4 L590.5,46.6 L592.8,45.4 L593.7,45.5 L594.2,46.0 L595.6,46.7 L596.6,46.7 L597.0,45.6 L597.3,44.6 L597.5,44.3 L598.2,44.6 L598.3,44.6 L599.3,47.7 L600.5,50.5 L602.3,52.9 L604.7,55.2 L604.7,55.2 L604.2,57.2 L604.5,60.6 L606.2,67.7 L606.7,73.4 L607.2,75.0 L607.8,76.3 L608.7,77.3 L609.4,77.4 L611.2,77.1 L611.8,77.3 L612.0,78.1 L611.7,80.2 L611.8,81.0 L613.7,88.3 L614.8,91.0 L617.2,93.2 L621.8,96.6 L625.8,100.3 L635.1,113.8 L636.8,115.1 L639.5,115.6 L641.6,116.2 L643.7,117.8 L647.5,121.2 L650.6,125.6 L652.5,127.7 L657.4,129.4 L663.4,135.1 L667.9,137.7 L683.6,142.5 L698.4,145.9 L698.5,145.9 L711.6,149.8 L714.7,150.0 L717.0,149.4 L720.0,147.5 L720.0,757.5 L712.0,762.2 L699.6,778.4 L684.1,790.9 L667.9,798.1 L656.2,804.4 L647.0,811.5 L634.6,822.2 L623.0,830.3 L612.1,841.9 L604.4,857.1 L599.0,865.7 L92.7,865.7 L94.2,863.7 Z"/>
+    <g id="satlayer" style="display:none"></g>
     <text class="sea-label" x="64" y="250">Atlantischer Ozean</text>
     <g><circle class="citydot" cx="552.3" cy="67.2" r="4"/><text class="cityname" x="563.3" y="71.2">Tanger</text></g>
     <g><circle class="citydot" cx="358.6" cy="370.7" r="0.1" opacity="0"/></g>
@@ -281,7 +297,7 @@ footer a{color:var(--sand)}
     <span class="lg"><span class="dotnum">1</span> Etappe (antippen)</span>
     <span class="lg"><span class="dotwine"></span> Weingut</span>
   </div>
-  <div class="maphint" style="height:34px;line-height:1.4">Zoomen: zwei Finger oder +/− · Rauszoomen zeigt Nordmarokko<br>Weingut-Positionen bei Meknès schematisch gruppiert</div>
+  <div class="maphint" style="height:34px;line-height:1.4">Zoomen: zwei Finger oder +/− · Rauszoomen zeigt Nordmarokko<br>Weingut-Positionen nach Betreiberangaben</div>
 </section>
 
 <section class="stages">
@@ -409,7 +425,7 @@ footer a{color:var(--sand)}
 <footer>
   Aromalabor Südpfalz · Dr. Susanne Geipert<br>
   <a href="https://www.aromalabor-suedpfalz.de">www.aromalabor-suedpfalz.de</a><br>
-  Marokko-Weinreise · App v0.4
+  Marokko-Weinreise · App v0.7
 </footer>
 </div>
 
@@ -430,7 +446,7 @@ footer a{color:var(--sand)}
 
 <script>
 // ---- Route (echte Koordinaten, äquirektangular projiziert, Katmull-Rom-geglättet) ----
-var route=[[312.2, 617.2], [138.5, 627.6], [115.3, 633.0], [173.1, 529.8], [254.1, 403.7], [407.5, 356.5], [438.5, 302.0], [581.8, 319.0], [581.0, 294.9], [595.9, 339.4], [573.8, 331.5], [523.9, 328.8], [347.8, 359.4]];
+var route=[[312.2, 617.2], [138.9, 629.2], [115.3, 633.0], [173.1, 529.8], [254.1, 403.7], [400.1, 355.6], [438.5, 302.0], [581.8, 319.0], [581.0, 294.9], [593.5, 336.7], [591.3, 343.4], [562.7, 336.9], [523.9, 328.8], [347.8, 359.4]];
 function smooth(pts){
   if(pts.length<3) return 'M'+pts.map(function(p){return p[0]+','+p[1]}).join(' L');
   var d='M'+pts[0][0]+','+pts[0][1];
@@ -446,9 +462,11 @@ document.getElementById('routePath').setAttribute('d',smooth(route));
 
 // ---- Weingüter (Rauten) ----
 var wines=[
-  {x:138.5,y:627.6,n:"Val d’Argan",lx:-8,ly:22,anchor:'start'},
-  {x:407.5,y:356.5,n:"Ouled Thaleb",lx:0,ly:24,anchor:'middle'},
-  {x:573.8,y:350.1,n:""},{x:603.9,y:353.4,n:""},{x:567.8,y:353.5,n:""}
+  {x:138.9,y:629.2,n:"Val d’Argan",lx:-6,ly:22,anchor:'start'},
+  {x:400.1,y:355.6,n:"Ouled Thaleb",lx:0,ly:24,anchor:'middle'},
+  {x:593.5,y:336.7,n:"Roslane",lx:11,ly:3,anchor:'start'},
+  {x:591.3,y:343.4,n:"Zouina",lx:11,ly:18,anchor:'start'},
+  {x:562.7,y:336.9,n:"Baccari",lx:-11,ly:5,anchor:'end'}
 ];
 var NS='http://www.w3.org/2000/svg', gw=document.getElementById('wines');
 wines.forEach(function(w){
@@ -462,18 +480,13 @@ wines.forEach(function(w){
     t.setAttribute('class','winename'); if(w.anchor)t.setAttribute('text-anchor',w.anchor);
     t.textContent=w.n; gw.appendChild(t);}
 });
-// Cluster-Label Weinregion Meknès
-(function(){var t=document.createElementNS(NS,'text');
-  t.setAttribute('x',579.8);t.setAttribute('y',381.0);t.setAttribute('class','winename');
-  t.setAttribute('text-anchor','middle');t.textContent='Zouina · Roslane · Baccari';
-  gw.appendChild(t);})();
 
 // ---- Etappen-Marker ----
 var stops=[
   {n:1,x:312.2,y:617.2,name:'Marrakesch',lx:14,ly:5},
   {n:2,x:115.3,y:633.0,name:'Essaouira',lx:14,ly:-12},
   {n:3,x:438.5,y:302.0,name:'Rabat',lx:14,ly:-8},
-  {n:4,x:581.8,y:325.0,name:'Meknès',lx:17,ly:12},
+  {n:4,x:581.8,y:325.0,name:'Meknès',lx:-17,ly:-2,anchor:'end'},
   {n:5,x:581.0,y:286.9,name:'Volubilis',lx:16,ly:-4},
   {n:6,x:347.8,y:359.4,name:'Atlantik',lx:-16,ly:0,anchor:'end'}
 ];
@@ -614,14 +627,17 @@ for(var i=1;i<=6;i++){var el=document.getElementById('s'+i); if(el) obs.observe(
 var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x": 120, "y": 101, "px": -49.8, "py": 107.9}, {"z": 8, "x": 120, "y": 102, "px": -49.8, "py": 263.6}, {"z": 8, "x": 120, "y": 103, "px": -49.8, "py": 419.4}, {"z": 8, "x": 120, "y": 104, "px": -49.8, "py": 575.2}, {"z": 8, "x": 120, "y": 105, "px": -49.8, "py": 731.0}, {"z": 8, "x": 121, "y": 100, "px": 105.9, "py": -47.9}, {"z": 8, "x": 121, "y": 101, "px": 105.9, "py": 107.9}, {"z": 8, "x": 121, "y": 102, "px": 105.9, "py": 263.6}, {"z": 8, "x": 121, "y": 103, "px": 105.9, "py": 419.4}, {"z": 8, "x": 121, "y": 104, "px": 105.9, "py": 575.2}, {"z": 8, "x": 121, "y": 105, "px": 105.9, "py": 731.0}, {"z": 8, "x": 122, "y": 100, "px": 261.7, "py": -47.9}, {"z": 8, "x": 122, "y": 101, "px": 261.7, "py": 107.9}, {"z": 8, "x": 122, "y": 102, "px": 261.7, "py": 263.6}, {"z": 8, "x": 122, "y": 103, "px": 261.7, "py": 419.4}, {"z": 8, "x": 122, "y": 104, "px": 261.7, "py": 575.2}, {"z": 8, "x": 122, "y": 105, "px": 261.7, "py": 731.0}, {"z": 8, "x": 123, "y": 100, "px": 417.5, "py": -47.9}, {"z": 8, "x": 123, "y": 101, "px": 417.5, "py": 107.9}, {"z": 8, "x": 123, "y": 102, "px": 417.5, "py": 263.6}, {"z": 8, "x": 123, "y": 103, "px": 417.5, "py": 419.4}, {"z": 8, "x": 123, "y": 104, "px": 417.5, "py": 575.2}, {"z": 8, "x": 123, "y": 105, "px": 417.5, "py": 731.0}, {"z": 8, "x": 124, "y": 100, "px": 573.2, "py": -47.9}, {"z": 8, "x": 124, "y": 101, "px": 573.2, "py": 107.9}, {"z": 8, "x": 124, "y": 102, "px": 573.2, "py": 263.6}, {"z": 8, "x": 124, "y": 103, "px": 573.2, "py": 419.4}, {"z": 8, "x": 124, "y": 104, "px": 573.2, "py": 575.2}, {"z": 8, "x": 124, "y": 105, "px": 573.2, "py": 731.0}];var TSZ=155.77;
 (function(){
   var mapsvg=document.getElementById('map'), sg=document.getElementById('satlayer');
-  var bK=document.getElementById('lyKarte'), bS=document.getElementById('lySat');
-  var loaded=false, fails=0, oks=0;
+  var bT=document.getElementById('lyTerr'), bS=document.getElementById('lySat');
+  var fails=0, oks=0;
   var hint=document.querySelector('.maphint');
-  function loadTiles(){
-    if(loaded) return; loaded=true;
+  var SRC={sat:'World_Imagery', terr:'World_Terrain_Base'};
+  var built={};
+  function loadTiles(kind){
+    if(built[kind]) return; built[kind]=true;
     TILES.forEach(function(t){
       var im=document.createElementNS('http://www.w3.org/2000/svg','image');
-      im.setAttribute('href','https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/'+t.z+'/'+t.y+'/'+t.x);
+      im.setAttribute('class','tl-'+kind);
+      im.setAttribute('href','https://server.arcgisonline.com/ArcGIS/rest/services/'+SRC[kind]+'/MapServer/tile/'+t.z+'/'+t.y+'/'+t.x);
       im.setAttribute('x',t.px);im.setAttribute('y',t.py);
       im.setAttribute('width',TSZ+0.6);im.setAttribute('height',TSZ+0.6);
       im.setAttribute('preserveAspectRatio','none');
@@ -632,22 +648,30 @@ var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x":
     setTimeout(check,3500);
   }
   function check(){
-    if(oks===0 && fails>=TILES.length*0.5 && mapsvg.classList.contains('sat')){
-      setMode(false);
-      hint.textContent='Satellitenbilder brauchen Internet – in der Vorschau nicht verfügbar, auf GitHub Pages schon.';
+    if(oks===0 && fails>=TILES.length*0.5){
+      hint.textContent='Kartenbilder brauchen Internet – in der Vorschau nicht verfügbar, auf GitHub Pages schon. Angezeigt wird die gezeichnete Ersatzkarte.';
     }
   }
-  function setMode(sat){
-    if(sat){loadTiles();mapsvg.classList.add('sat');sg.style.display='';
-      bS.classList.add('on');bK.classList.remove('on');
-      hint.innerHTML='Satellit: © Esri · Maxar · Earthstar Geographics<br>Zoomen mit zwei Fingern oder +/− · Doppeltipp = Standard';
-    } else {mapsvg.classList.remove('sat');sg.style.display='none';
-      bK.classList.add('on');bS.classList.remove('on');
-      hint.innerHTML='Zoomen: zwei Finger oder +/− · Rauszoomen zeigt Nordmarokko<br>Weingut-Positionen bei Meknès schematisch gruppiert';
-    }
+  var mode='terr';
+  var HINTS={
+    terr:'Gelände: © Esri · USGS · NOAA · Zoomen: zwei Finger oder +/−<br>Weingut-Positionen nach Betreiberangaben',
+    sat:'Satellit: © Esri · Maxar · Earthstar Geographics<br>Zoomen: zwei Finger oder +/− · Doppeltipp = Standard'
+  };
+  function setMode(m){
+    mode=m;
+    mapsvg.classList.remove('sat','terr');
+    bT.classList.remove('on'); bS.classList.remove('on');
+    loadTiles(m); sg.style.display='';
+    sg.querySelectorAll('image').forEach(function(im){
+      im.style.display = im.getAttribute('class')==='tl-'+m ? '' : 'none';
+    });
+    mapsvg.classList.add(m);
+    (m==='sat'?bS:bT).classList.add('on');
+    hint.innerHTML=HINTS[m];
   }
-  bK.addEventListener('click',function(){setMode(false);});
-  bS.addEventListener('click',function(){setMode(true);});
+  bT.addEventListener('click',function(){setMode('terr');});
+  bS.addEventListener('click',function(){setMode('sat');});
+  setMode('terr');
 })();
 
 // ---- Zusatzinfo-Sheet ----
