@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="app-version" content="3.0">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -185,6 +186,17 @@ h1{font-family:Georgia,serif;font-size:52px;letter-spacing:.14em;font-weight:400
 footer{margin-top:40px;text-align:center;font-size:12px;color:var(--ivory-dim);line-height:1.7}
 footer a{color:var(--sand)}
 
+/* ---------- Update-Hinweis ---------- */
+#updbar{position:fixed;left:0;right:0;top:0;z-index:80;transform:translateY(-100%);
+  transition:transform .3s ease;background:var(--saffron);color:#20222B;
+  padding:calc(9px + env(safe-area-inset-top)) 14px 9px;
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#updbar.show{transform:translateY(0)}
+#updbar .txt{flex:1;font-size:13.5px;line-height:1.35;font-weight:600}
+#updbar button{flex-shrink:0;height:32px;padding:0 14px;border-radius:8px;border:none;
+  background:#20222B;color:var(--saffron);font-size:13px;font-weight:700}
+#updbar .zu{background:transparent;color:#20222B;padding:0 6px;font-size:20px;line-height:1;font-weight:400}
+
 /* ---------- Unterseite ---------- */
 #sub{position:fixed;inset:0;z-index:60;background:var(--night);
   transform:translateX(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);
@@ -219,8 +231,23 @@ footer a{color:var(--sand)}
 .itopic .t span{font-size:13px;color:var(--ivory-dim);line-height:1.45;display:block;margin-top:4px}
 .itopic .chev{flex-shrink:0;color:var(--saffron);opacity:.75}
 
-.detailkopf{display:flex;justify-content:center;margin:4px 0 20px}
-.detailkopf img{width:172px;height:172px;object-fit:contain}
+.detailkopf{display:flex;justify-content:center;margin:2px 0 14px}
+.detailkopf img{width:132px;height:132px;object-fit:contain}
+.detailkopf img.kanne{width:122px;height:122px}
+.detailkopf img.birne{width:118px;height:118px}
+.subbody p{font-size:15px;line-height:1.65;color:var(--ivory);margin-bottom:12px}
+.subbody h3{font-family:Georgia,serif;font-size:19px;font-weight:400;color:var(--sand);
+  margin:22px 0 10px;line-height:1.25}
+.subbody h3:first-of-type{margin-top:4px}
+.faktenliste{list-style:none;margin:4px 0 14px}
+.faktenliste li{position:relative;padding:0 0 9px 20px;font-size:14.5px;line-height:1.55;color:var(--ivory)}
+.faktenliste li::before{content:'';position:absolute;left:2px;top:7px;width:8px;height:8px;
+  border-radius:50%;background:var(--saffron)}
+.faktenliste li b{color:var(--sand);font-weight:600}
+.merke{background:rgba(233,216,172,.06);border:1px solid var(--line);border-radius:12px;
+  padding:14px 16px;margin:16px 0 4px}
+.merke b{display:block;color:var(--sand);font-size:14px;margin-bottom:5px;font-weight:600}
+.merke span{font-size:13.5px;line-height:1.55;color:var(--ivory-dim)}
 .platzhalter{background:rgba(233,216,172,.06);border:1px solid var(--line);border-radius:12px;
   padding:18px;font-size:14.5px;line-height:1.6;color:var(--ivory-dim);text-align:center}
 .platzhalter b{display:block;color:var(--sand);font-size:15px;margin-bottom:6px;font-weight:600}
@@ -454,8 +481,14 @@ footer a{color:var(--sand)}
 <footer>
   Aromalabor Südpfalz · Dr. Susanne Geipert<br>
   <a href="https://www.aromalabor-suedpfalz.de">www.aromalabor-suedpfalz.de</a><br>
-  Marokko-Weinreise · App v2.2
+  Marokko-Weinreise · App v3.0
 </footer>
+</div>
+
+<div id="updbar">
+  <span class="txt">Neue Version verfügbar</span>
+  <button id="updNow">Laden</button>
+  <button class="zu" id="updSpaeter" aria-label="Später">&times;</button>
 </div>
 
 <!-- Unterseite -->
@@ -707,6 +740,57 @@ var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x":
   setMode('terr');
 })();
 
+// ---- Versionsprüfung (HEAD auf die eigene Datei, überträgt keinen Inhalt) ----
+(function(){
+  var MEINE_VERSION = '3.0';
+  var SCHLUESSEL = 'marokko-app-stand';
+  var bar  = document.getElementById('updbar'),
+      txt  = bar.querySelector('.txt'),
+      jetzt= document.getElementById('updNow'),
+      zu   = document.getElementById('updSpaeter');
+  var abgelehnt = null;
+
+  function merken(wert){
+    try{ localStorage.setItem(SCHLUESSEL, JSON.stringify({kennung:wert, version:MEINE_VERSION})); }
+    catch(e){}
+  }
+  function gemerkt(){
+    try{ return JSON.parse(localStorage.getItem(SCHLUESSEL) || 'null'); }
+    catch(e){ return null; }
+  }
+
+  function pruefen(){
+    var url = location.pathname.replace(/[^\/]*$/, '') + 'index.html?t=' + Date.now();
+    fetch(url, {method:'HEAD', cache:'no-store'})
+      .then(function(r){
+        if(!r.ok) return;
+        // Fingerabdruck der Datei auf dem Server — ohne den Inhalt zu laden
+        var kennung = r.headers.get('ETag') || r.headers.get('Last-Modified');
+        if(!kennung) return;
+
+        var alt = gemerkt();
+        // Erster Start oder frisch aktualisiert: aktuellen Stand merken, nichts melden
+        if(!alt || alt.version !== MEINE_VERSION){ merken(kennung); return; }
+        if(alt.kennung === kennung) return;          // unverändert
+        if(kennung === abgelehnt) return;            // schon weggetippt
+
+        txt.textContent = 'Neue Version verfügbar';
+        bar.classList.add('show');
+        jetzt.onclick = function(){
+          try{ localStorage.removeItem(SCHLUESSEL); }catch(e){}
+          location.replace(location.pathname + '?v=' + Date.now());
+        };
+        zu.onclick = function(){ abgelehnt = kennung; bar.classList.remove('show'); };
+      })
+      .catch(function(){ /* offline: still bleiben */ });
+  }
+
+  pruefen();
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') pruefen();
+  });
+})();
+
 // ---- Unterseiten-Navigation ----
 (function(){
   var sub   = document.getElementById('sub'),
@@ -724,6 +808,223 @@ var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x":
     {id:'tipps',   name:'Praktische Tipps',  sub:'Kleidung, Trinkgeld, Fotografieren, Sprache',
      bild:'data:image/png;base64,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', cls:'birne'}
   ];
+
+  var INHALTE = {
+    '1': {
+      weingut:
+        '<p>In Marrakesch steht noch kein Weingutsbesuch an — dafür das Seminar, das die Grundlagen für die kommenden Tage legt.</p>' +
+        '<h3>Eine Weinkultur mit Brüchen</h3>' +
+        '<p>Die ersten Reben brachten die Phönizier ins Land, unter römischer Herrschaft entstand daraus ein blühender Weinbau. Mit der arabischen Eroberung im 7. Jahrhundert kam er fast vollständig zum Erliegen und ruhte über tausend Jahre.</p>' +
+        '<p>Erst während des französischen Protektorats ab 1912 wurde neu gepflanzt — mit Sorten, die man aus Südfrankreich kannte: Grenache, Carignan, Cinsault und Alicante Bouschet. 1934 wurden die ersten Anbaugebiete geografisch abgegrenzt.</p>' +
+        '<h3>Wo der Wein heute wächst</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Fès-Meknès</b> — die bedeutendste Region, in den Ausläufern des Atlas. Hier liegen vier unserer fünf Weingüter.</li>' +
+        '<li><b>Küste bei Casablanca und Rabat</b> — kühler, atlantisch geprägt, mit einem Schwerpunkt auf Weißwein.</li>' +
+        '<li><b>Essaouira</b> — jung und klein, direkt am Atlantik. Val d’Argan liegt hier.</li>' +
+        '</ul>' +
+        '<h3>Die Klassifizierung</h3>' +
+        '<p>Marokko kennt vierzehn Gebiete mit dem Status <i>Appellation d’Origine Garantie</i>. Eine einzige höhere Stufe wurde 2001 geschaffen: die AOC Coteaux de l’Atlas 1er Cru. Das Weingut, das sie tragen darf, besuchen wir an Tag fünf — Château Roslane.</p>' +
+        '<h3>Vin Gris</h3>' +
+        '<p>Die marokkanische Spezialität: rote Trauben, meist Cinsault und Carignan, werden hell gekeltert. Das Ergebnis ist blasser als ein Rosé und trinkt sich an heißen Tagen wie kaum etwas anderes. Am bekanntesten ist der Gris de Boulaouane.</p>' +
+        '<div class="merke"><b>Fürs Seminar</b><span>Es lohnt sich, beim Verkosten auf die Cinsault-Anteile zu achten. Die Sorte prägt marokkanischen Wein stärker als jede andere — und schmeckt hier anders als in Südfrankreich.</span></div>',
+      kultur:
+        '<p>Marrakesch wurde 1062 von den Almoraviden gegründet und war jahrhundertelang Hauptstadt. Der Name der Stadt ging später auf das ganze Land über.</p>' +
+        '<h3>Die Medina</h3>' +
+        '<p>Die Altstadt steht seit 1985 auf der Liste des UNESCO-Welterbes. Ihre Mauern aus gestampftem Lehm geben der Stadt den Beinamen, den jeder kennt: die Rote Stadt. Je nach Tageszeit wechselt der Ton von Rosa über Ocker bis zu tiefem Rostrot.</p>' +
+        '<h3>Jemaa el-Fna</h3>' +
+        '<p>Der große Platz im Herzen der Medina ist tagsüber Markt und wird am Abend zur Bühne: Garküchen bauen auf, Geschichtenerzähler und Musiker sammeln ihr Publikum. Die UNESCO hat diese Tradition als immaterielles Kulturerbe anerkannt — geschützt ist hier nicht der Platz, sondern das, was auf ihm passiert.</p>' +
+        '<p>Dort essen wir am ersten Abend gemeinsam.</p>' +
+        '<h3>Was sich lohnt</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Koutoubia</b> — die große Moschee aus dem 12. Jahrhundert, ihr Minarett dient als Orientierungspunkt in der ganzen Altstadt.</li>' +
+        '<li><b>Die Souks</b> nördlich des Platzes, geordnet nach Gewerken: Gewürze, Färber, Lederarbeiten, Metall.</li>' +
+        '<li><b>Die Gärten</b> — Majorelle und Menara, beide gute Gegenentwürfe zum Trubel der Medina.</li>' +
+        '</ul>',
+      tipps:
+        '<h3>Kleidung</h3>' +
+        '<p>Leichte, lange Sachen sind praktischer als kurze — sie schützen vor Sonne und passen besser in die Medina. Bedeckte Schultern und Knie sind ein Zeichen von Respekt, keine Vorschrift. Abends kann es empfindlich abkühlen, eine Lage zum Überziehen gehört ins Gepäck.</p>' +
+        '<h3>Fotografieren</h3>' +
+        '<p>Menschen vorher fragen, besonders auf Märkten. Wer auf dem Jemaa el-Fna auftritt — Musiker, Schlangenbeschwörer, Wasserverkäufer — lebt davon und erwartet für ein Foto ein kleines Trinkgeld. Ein paar Münzen bereithalten erspart Verhandlungen.</p>' +
+        '<h3>Trinkgeld</h3>' +
+        '<p>Im Restaurant sind etwa zehn Prozent üblich, für Gepäckträger und Helfer ein paar Dirham. Kleine Scheine und Münzen sind Gold wert — größere Scheine lassen sich unterwegs oft nicht wechseln.</p>' +
+        '<h3>Sprache</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Darija</b>, das marokkanische Arabisch, ist die Umgangssprache; daneben werden Berbersprachen gesprochen.</li>' +
+        '<li><b>Französisch</b> versteht man fast überall — im Handel, im Hotel, auf den Weingütern.</li>' +
+        '<li><b>Shukran</b> heißt danke, <b>La shukran</b> nein danke. Beides öffnet Türen.</li>' +
+        '</ul>' +
+        '<h3>In den Souks</h3>' +
+        '<p>Handeln gehört dazu und wird erwartet. Es ist ein Gespräch, kein Wettkampf — wer freundlich bleibt und auch mal ohne Kauf weitergeht, kommt am besten zurecht.</p>' +
+        '<div class="merke"><b>Minztee</b><span>Wird oft zur Begrüßung angeboten, im Laden wie auf dem Weingut. Anzunehmen ist höflich — und meist der Beginn eines längeren Gesprächs.</span></div>'
+    }    ,
+    '2': {
+      weingut:
+        '<h3>Ein Weingut, das es nicht geben dürfte</h3>' +
+        '<p>Charles Mélia war Winzer in Châteauneuf-du-Pape, als er 1994 nach Ounagha kam — auf Land, auf dem niemand Reben vermutet hätte. Vier Jahre lang wurde gerodet, entsteint und gegraben, bevor die ersten Stöcke standen. Aus fünf Sorten auf sieben Hektar sind inzwischen rund fünfzig Hektar geworden.</p>' +
+        '<p>Der Grund für diesen Ort war der Wind. Der ständige Atlantikwind erinnerte Mélia an den Mistral seiner Heimat — und er kühlt die Reben in einer Gegend, in der es im Sommer sehr heiß wird.</p>' +
+        '<h3>Rhône in Marokko</h3>' +
+        '<p>Val d’Argan ist das einzige Weingut des Landes, das ausschließlich auf Rhône-Sorten setzt. Gut ein Dutzend sind es inzwischen — Syrah, Grenache und Mourvèdre bei den roten, Ugni Blanc, Clairette und Muscat bei den hellen.</p>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Biologisch</b> — das Gut ist nach der EU-Öko-Verordnung zertifiziert und gilt als das einzige zertifizierte Bio-Weingut Marokkos.</li>' +
+        '<li><b>Weinnamen</b> — viele tragen den alten Namen der Stadt: Gazelle de Mogador, El Mogador, Orient de Val d’Argan.</li>' +
+        '<li><b>Vin Gris</b> — auch hier im Programm, und ein guter Vergleichspunkt zu dem, was wir später bei Meknès verkosten.</li>' +
+        '</ul>' +
+        '<div class="merke"><b>Beim Verkosten</b><span>Spannend ist die Frage, ob man den Atlantik im Glas bemerkt. Die Weine hier sind frischer und salziger als die aus dem Landesinneren — ein Vergleich, den wir in den kommenden Tagen ziehen können.</span></div>' +
+        '<p>Nach der Führung essen wir auf dem Gut zu Mittag, zwischen Reben und Olivenbäumen.</p>',
+      kultur:
+        '<h3>Mogador</h3>' +
+        '<p>Essaouira hieß lange Mogador. Die heutige Stadt entstand in den 1760er Jahren, als Sultan Mohammed ben Abdallah einen Hafen nach europäischem Vorbild anlegen ließ — geplant von einem französischen Architekten, im Grundriss geometrisch, mit Wällen zum Meer hin. Diese ungewöhnliche Mischung aus maghrebinischer Stadt und europäischer Festungsbaukunst brachte der Medina 2001 den Titel des UNESCO-Welterbes ein.</p>' +
+        '<h3>Der Wind</h3>' +
+        '<p>Was den Reben von Val d’Argan guttut, prägt auch die Stadt. Essaouira ist windig, fast immer — deshalb ist es ein Ziel für Surfer und deshalb bleibt es selbst im Hochsommer erträglich. Für uns heißt das: eine Jacke einpacken, auch wenn Marrakesch am Morgen noch heiß war.</p>' +
+        '<h3>Was sich lohnt</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Skala de la Ville</b> — die Wehrmauer über dem Meer, mit alten Bronzekanonen und dem besten Blick auf die Brandung.</li>' +
+        '<li><b>Der Fischerhafen</b> — blaue Boote, Möwen, der Fang wird direkt an Ort und Stelle gegrillt.</li>' +
+        '<li><b>Die Medina</b> — weiß getüncht mit blauen Türen, deutlich ruhiger und übersichtlicher als die in Marrakesch.</li>' +
+        '<li><b>Arganöl</b> — die Region ist sein Ursprungsgebiet. In Kooperativen kann man beim Knacken der Nüsse zusehen.</li>' +
+        '</ul>' +
+        '<p>Der Abend gehört Ihnen: ein Spaziergang am Strand, ein Glas auf einer Dachterrasse, ein Blick in die Gassen.</p>',
+      tipps:
+        '<h3>Zwei Öle</h3>' +
+        '<p>Arganöl gibt es in zwei Formen, und sie werden gerne verwechselt. Für die Küche werden die Kerne vor dem Pressen geröstet — das Öl ist dunkler, riecht nussig und passt zu Salat oder Amlou. Kosmetisches Öl wird ungeröstet gepresst, ist heller und geruchsärmer. Wer das falsche kauft, wundert sich zu Hause.</p>' +
+        '<h3>Fisch am Hafen</h3>' +
+        '<p>An den Ständen wird nach Gewicht abgerechnet. Vorher nach dem Preis fragen und den Fisch auswählen, den man wirklich möchte — das ist üblich und niemand nimmt es krumm. Und: Die Möwen sind dreist, den Teller nicht unbeaufsichtigt lassen.</p>' +
+        '<h3>Kleidung</h3>' +
+        '<p>Essaouira ist deutlich kühler als das Landesinnere, dazu kommt der Wind. Eine winddichte Jacke ist hier wichtiger als Sonnenschutz — auch wenn beides seinen Platz im Koffer hat.</p>' +
+        '<h3>Auf dem Weingut</h3>' +
+        '<ul class="faktenliste">' +
+        '<li>Das Mittagessen findet meist im Freien statt — Sonnenhut und etwas zum Überziehen sind beides sinnvoll.</li>' +
+        '<li>Wer Wein mitnehmen möchte: an das Gewicht im Koffer denken und an die Zollfreimengen bei der Rückreise.</li>' +
+        '</ul>' +
+        '<div class="merke"><b>Zeitgefühl</b><span>Verkostung und Mittagessen auf einem marokkanischen Weingut dauern länger als geplant — das ist keine Verzögerung, sondern Teil der Gastfreundschaft.</span></div>'
+    }    ,
+    '3': {
+      weingut:
+        '<h3>Das älteste Weingut des Landes</h3>' +
+        '<p>1923 wurden bei Benslimane die ersten Reben gepflanzt, 1927 gab es die erste Ernte. Seither hat der Betrieb ohne Unterbrechung Wein gemacht — als einziger, der die schwierigen Jahrzehnte nach der Unabhängigkeit durchgehalten hat. Heute gehört er zur Gesellschaft Thalvin.</p>' +
+        '<h3>Warum hier?</h3>' +
+        '<p>Die Lage in der Appellation Zenata liegt zwischen Casablanca und Rabat, nahe genug am Atlantik für kühlende Meeresluft. Die Böden aus Kies und Sand erinnerten die französischen Siedler an Bordeaux — einer der Gründe, warum sie im frühen 20. Jahrhundert ausgerechnet hierher kamen.</p>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Syrocco</b> — der bekannteste Wein des Hauses, entstanden aus der Zusammenarbeit mit dem Rhône-Winzer Alain Graillot. Der Name spielt mit Syrah und Schirokko, dem Wind Nordafrikas.</li>' +
+        '<li><b>Tandem</b> — ein reinsortiger Syrah, in Bordeaux ausgezeichnet.</li>' +
+        '<li><b>Riad des Vignes</b> — das Restaurant auf dem Gut, wo wir zu Mittag essen.</li>' +
+        '</ul>' +
+        '<div class="merke"><b>Der Vergleich</b><span>Gestern Rhône am Atlantik, heute ein Bordeaux-Gedanke auf Kies und Sand. Zwei sehr verschiedene französische Handschriften — beide in Marokko.</span></div>',
+      kultur:
+        '<h3>Rabat</h3>' +
+        '<p>Die Hauptstadt ist ruhiger und geordneter als Marrakesch: breite Alleen, Ministerien, Universitäten. 2012 wurde sie als UNESCO-Welterbe eingetragen, ausdrücklich für das Nebeneinander von islamischer Stadt und moderner Planung.</p>' +
+        '<h3>Der Hassan-Turm</h3>' +
+        '<p>Am eindrucksvollsten ist, was nie fertig wurde. Ende des 12. Jahrhunderts sollte hier die größte Moschee der westlichen islamischen Welt entstehen. Nach dem Tod des Bauherrn wurde der Bau eingestellt — geblieben sind das halbhohe Minarett und ein Feld aus Hunderten Säulenstümpfen. Gegenüber steht das Mausoleum Mohammeds V.</p>' +
+        '<h3>Was sich lohnt</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Kasbah des Oudayas</b> — weiß-blaue Gassen über der Flussmündung, mit Andalusischem Garten.</li>' +
+        '<li><b>Chellah</b> — römische Ruinen und eine mittelalterliche Nekropole in einem, heute von Störchen bewohnt.</li>' +
+        '<li><b>Die Uferpromenade</b> am Bou Regreg, mit Blick auf die Nachbarstadt Salé.</li>' +
+        '</ul>',
+      tipps:
+        '<h3>Anderer Ton</h3>' +
+        '<p>Rabat ist Verwaltungs- und Diplomatenstadt. Man tritt hier etwas zurückhaltender auf als in Marrakesch, und man wird deutlich weniger angesprochen. Wer die Souks der Roten Stadt anstrengend fand, atmet hier auf.</p>' +
+        '<h3>Fotografieren</h3>' +
+        '<p>Regierungsgebäude, Militär und Polizei nicht fotografieren — das gilt in ganz Marokko, in der Hauptstadt aber besonders. Am Mausoleum Mohammeds V. stehen Wachen in Uniform; ein Foto ist erlaubt, ein respektvoller Abstand selbstverständlich.</p>' +
+        '<h3>Unterwegs</h3>' +
+        '<ul class="faktenliste">' +
+        '<li>Die Fahrt von Essaouira nach Rabat ist die längste der Reise — bequeme Kleidung und Wasser griffbereit.</li>' +
+        '<li>Auf dem Weingut wird mittags verkostet. Wer am Nachmittag noch etwas vorhat, hält sich zurück oder nutzt die Spucknäpfe. Das ist unter Weinleuten völlig normal.</li>' +
+        '</ul>'
+    },
+    '4': {
+      weingut:
+        '<h3>Domaine de la Zouina</h3>' +
+        '<p>Das Gut südöstlich von Meknès stammt aus der Protektoratszeit und ist heute in französischer Hand — mit Erfahrung aus Bordeaux. Es ist deutlich kleiner als die großen Häuser der Region: rund 85 Hektar Reben, dazu etwa 15 Hektar Olivenbäume, aus denen ebenfalls ein eigenes Öl entsteht.</p>' +
+        '<h3>Volubilia</h3>' +
+        '<p>Der bekannteste Name des Hauses, benannt nach der Römerstadt, die wir am nächsten Tag besuchen. Daneben steht die Linie Epicuria für die anspruchsvolleren Weine.</p>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Volubilia Gris</b> — die marokkanische Spezialität, hier aus Cabernet Sauvignon, Caladoc, Marselan und Mourvèdre.</li>' +
+        '<li><b>Volubilia Blanc</b> — Chardonnay mit Vermentino, eine im Mittelmeerraum bewährte Kombination.</li>' +
+        '<li><b>Der Rosé</b> wurde in Bordeaux ausgezeichnet — ausgerechnet dort, wo die Eigentümer herkommen.</li>' +
+        '</ul>' +
+        '<div class="merke"><b>Höhe zählt</b><span>Die Weinberge um Meknès liegen auf mehreren hundert Metern. Die kühlen Nächte erhalten die Säure — der Grund, warum hier trotz Nordafrika frische Weine gelingen.</span></div>',
+      kultur:
+        '<h3>Die Stadt des Sultans</h3>' +
+        '<p>Meknès verdankt sein Gesicht einem einzigen Mann: Sultan Moulay Ismail, der die Stadt Ende des 17. Jahrhunderts zur Hauptstadt machte und in gewaltigem Maßstab bauen ließ. Mauern von vielen Kilometern Länge, Tore, Speicher, Ställe. 1996 wurde die Stadt UNESCO-Welterbe.</p>' +
+        '<h3>Was sich lohnt</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Bab Mansour</b> — das große Stadttor am Place el-Hedim, eines der schönsten des Landes.</li>' +
+        '<li><b>Heri es-Souani</b> — die Kornspeicher und Stallungen, hohe Gewölbe mit meterdicken Mauern, die die Vorräte kühl hielten.</li>' +
+        '<li><b>Place el-Hedim</b> — der Platz vor dem Tor, abends belebt, kleiner und ruhiger als sein Vorbild in Marrakesch.</li>' +
+        '</ul>' +
+        '<p>Der Abend ist frei — eine Dachterrasse, ein Bummel durch die Medina oder einfach früh ins Bett vor dem langen Tag in Volubilis.</p>',
+      tipps:
+        '<h3>Höhe und Wetter</h3>' +
+        '<p>Meknès liegt höher als alles, was wir bisher gesehen haben. Tagsüber warm, nachts spürbar kühl — die Jacke von Essaouira bleibt im Gebrauch.</p>' +
+        '<h3>Wein kaufen</h3>' +
+        '<p>Auf den Gütern kann man direkt kaufen, meist günstiger als in Deutschland. Zwei Dinge dabei bedenken: das Gewicht im Koffer und die Zollfreimengen bei der Rückreise in die EU. Wer mehrere Flaschen mitnehmen will, packt am besten schon in Deutschland eine Weinschutzhülle ein.</p>' +
+        '<h3>Alkohol im Alltag</h3>' +
+        '<ul class="faktenliste">' +
+        '<li>Wein gehört in Marokko nicht ins öffentliche Straßenbild. Er wird in Hotels, lizenzierten Restaurants und auf den Gütern ausgeschenkt, nicht auf dem Markt.</li>' +
+        '<li>Eine Flasche aus dem Gutsverkauf gehört in die Tasche, nicht sichtbar in die Hand.</li>' +
+        '</ul>' +
+        '<div class="merke"><b>Ramadan</b><span>Fällt der Reisetermin in den Fastenmonat, gelten strengere Regeln für Ausschank und Essen in der Öffentlichkeit. Das steht rechtzeitig vor der Reise fest.</span></div>'
+    },
+    '5': {
+      weingut:
+        '<h3>Château Roslane</h3>' +
+        '<p>Das Gut gehört zu Les Celliers de Meknès, dem größten Weinhaus des Landes. Es ist das einzige Weingut Marokkos, das die Bezeichnung <i>Château</i> führen darf — seit 2008 amtlich erlaubt — und das einzige mit einer AOC: Coteaux de l’Atlas 1er Cru, geschaffen 2001 und bis heute die einzige ihrer Art in Marokko.</p>' +
+        '<p>Zur Anlage gehören über siebenhundert Hektar Reben, Gärten, ein Restaurant und ein kleines Hotel. Dort übernachten wir.</p>' +
+        '<h3>Was die AOC bedeutet</h3>' +
+        '<p>Vierzehn Gebiete Marokkos tragen den Status AOG. Die Stufe darüber — kontrollierte Herkunft mit strengeren Auflagen für Ertrag, Sorten und Ausbau — gibt es genau einmal. Wir verkosten also an diesem Nachmittag die Spitze dessen, was das Land rechtlich zu bieten hat.</p>' +
+        '<div class="merke"><b>Zum Vergleich</b><span>Vier Tage, vier sehr verschiedene Häuser: ein Bio-Pionier am Atlantik, das älteste Gut des Landes, ein kleines französisch geführtes Familiengut — und heute der große, klassifizierte Betrieb. Wer mag, macht sich Notizen; am letzten Abend lässt sich daraus ein schöner Rückblick machen.</span></div>' +
+        '<p>Das Abendessen im Château ist nicht im Reisepreis enthalten.</p>',
+      kultur:
+        '<h3>Volubilis</h3>' +
+        '<p>Am Vormittag stehen wir in einer römischen Stadt. Volubilis war Verwaltungssitz der Provinz Mauretania Tingitana und blieb nach dem Rückzug Roms noch Jahrhunderte bewohnt. Seit 1997 gehört die Anlage zum UNESCO-Welterbe.</p>' +
+        '<h3>Was zu sehen ist</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Die Mosaike</b> — der eigentliche Schatz, größtenteils an Ort und Stelle geblieben, in den Böden der Stadthäuser.</li>' +
+        '<li><b>Triumphbogen und Kapitol</b> — die repräsentative Mitte, dahinter die Hauptstraße mit den Resten der Kolonnaden.</li>' +
+        '<li><b>Ölpressen</b> — überall im Gelände. Schon die Römer lebten hier von Olivenöl; die Haine ringsum gibt es bis heute.</li>' +
+        '</ul>' +
+        '<p>Der Ort verbindet die beiden Fäden dieser Reise: römische Antike und eine Landwirtschaft, die sich in zweitausend Jahren im Kern nicht verändert hat.</p>',
+      tipps:
+        '<h3>Für die Ausgrabung</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Feste Schuhe</b> — der Boden ist uneben, teils antikes Pflaster, teils Schotter.</li>' +
+        '<li><b>Schatten gibt es kaum.</b> Hut, Sonnenbrille, Sonnencreme und Wasser gehören dazu, auch im Mai.</li>' +
+        '<li><b>Vormittags ist es angenehmer</b> — und das Licht steht günstiger für Fotos der Mosaike.</li>' +
+        '</ul>' +
+        '<h3>Im Château</h3>' +
+        '<p>Am Abend ist es etwas festlicher als sonst auf der Reise. Ein Hemd oder ein Kleid im Koffer sind hier gut angelegt — vorgeschrieben ist nichts.</p>' +
+        '<div class="merke"><b>Die Nacht auf dem Weingut</b><span>Wer früh aufwacht: Der Blick über die Reben zum Atlas ist im Morgenlicht am schönsten, lange bevor das Frühstück beginnt.</span></div>'
+    },
+    '6': {
+      weingut:
+        '<h3>Domaine de Baccari</h3>' +
+        '<p>Zum Abschluss ein Gegenentwurf zum Vortag: ein kleines Gut westlich von Meknès, ohne Hotelanlage und ohne große Inszenierung. Hier zählt die Handschrift des Hauses.</p>' +
+        '<h3>Die Weine</h3>' +
+        '<p>Bekannt ist vor allem die Première de Baccari, eine Cuvée aus Cabernet Franc und Syrah — eine für Marokko ungewöhnliche Kombination, die dem Wein eine kühlere, kräutrige Note gibt. Daneben stehen ein Weißer und ein Rosé im Programm.</p>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Cabernet Franc</b> ist in Marokko selten. Wer die Sorte von der Loire kennt, findet hier eine ganz andere Ausprägung.</li>' +
+        '<li><b>Kleine Menge</b> — was hier entsteht, sieht man im Handel selten. Umso mehr lohnt der Direktkauf.</li>' +
+        '</ul>' +
+        '<div class="merke"><b>Der letzte Vergleich</b><span>Fünf Güter in acht Tagen: Rhône-Sorten am Atlantik, Bordeaux-Böden bei Benslimane, ein Familiengut mit Volubilia, die klassifizierte Spitze in Roslane — und heute ein Betrieb, der seinen eigenen Weg geht. Marokkanischer Wein ist keine einzelne Stilistik, sondern ein Nebeneinander.</span></div>',
+      kultur:
+        '<h3>Zurück an den Atlantik</h3>' +
+        '<p>Nach der letzten Verkostung fahren wir aus den Hügeln des Mittleren Atlas hinunter zur Küste. Die Landschaft wechselt noch einmal deutlich: aus Reben und Olivenhainen werden Felder, dann Dünen und schließlich das offene Meer.</p>' +
+        '<h3>Der letzte Abend</h3>' +
+        '<p>Die Nacht verbringen wir direkt am Wasser. Nach acht Tagen zwischen Medina, Weinkeller und Ausgrabung ist das ein bewusster Ausklang — Zeit, die Eindrücke zu sortieren und sich zu verabschieden.</p>' +
+        '<p>Für viele ist es der Moment, in dem die Reise zusammenkommt: der Wind, der schon in Essaouira wehte, dieselbe Küste, ein anderer Punkt.</p>',
+      tipps:
+        '<h3>Vor dem Rückflug</h3>' +
+        '<ul class="faktenliste">' +
+        '<li><b>Wein im Gepäck</b> — Flaschen gehören in den aufgegebenen Koffer, gut gepolstert in der Mitte. Im Handgepäck sind sie nicht erlaubt.</li>' +
+        '<li><b>Zollfreimengen</b> bei der Einreise in die EU beachten.</li>' +
+        '<li><b>Dirham</b> — Restbeträge lohnt es sich vor Ort auszugeben oder rechtzeitig zurückzutauschen.</li>' +
+        '</ul>' +
+        '<h3>Am Meer</h3>' +
+        '<p>Der Atlantik ist auch im Mai kühl und die Strömung nicht zu unterschätzen. Baden nur dort, wo es ausgewiesen ist.</p>' +
+        '<div class="merke"><b>Ein letzter Gedanke</b><span>Wer unterwegs Notizen zu den Weinen gemacht hat, sollte sie heute Abend durchgehen — zu Hause verblasst die Erinnerung an ein Glas schneller, als man denkt.</span></div>'
+    }
+  };
   var chev = '<svg class="chev" viewBox="0 0 24 24" width="20" height="20"><path d="M9 4 L17 12 L9 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   function seiteUebersicht(stage, ort){
@@ -738,10 +1039,11 @@ var TILES=[{"z": 8, "x": 120, "y": 100, "px": -49.8, "py": -47.9}, {"z": 8, "x":
   }
 
   function seiteRubrik(stage, ort, r){
-    var html = '<div class="detailkopf"><img class="'+r.cls+'" src="'+r.bild+'" alt=""></div>' +
-               '<div class="platzhalter"><b>Inhalte folgen</b>' +
-               'Hier stehen später die Informationen zu diesem Punkt: ' + r.sub +
-               '.</div>';
+    var text = (INHALTE[stage] && INHALTE[stage][r.id]) ? INHALTE[stage][r.id] : null;
+    var html = '<div class="detailkopf"><img class="'+r.cls+'" src="'+r.bild+'" alt=""></div>';
+    html += text ? text
+                 : '<div class="platzhalter"><b>Inhalte folgen</b>' +
+                   'Hier stehen später die Informationen zu diesem Punkt: ' + r.sub + '.</div>';
     return {kicker:'Etappe '+stage+' · '+ort, titel:r.name, html:html};
   }
 
